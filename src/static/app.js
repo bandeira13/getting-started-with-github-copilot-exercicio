@@ -36,7 +36,56 @@ document.addEventListener("DOMContentLoaded", () => {
           details.participants.forEach(email => {
             const li = document.createElement("li");
             li.className = "participant-item";
-            li.textContent = email;
+            
+            // Criar o elemento de texto para o email
+            const emailSpan = document.createElement("span");
+            emailSpan.textContent = email;
+            li.appendChild(emailSpan);
+            
+            // Criar o ícone de exclusão
+            const deleteIcon = document.createElement("span");
+            deleteIcon.innerHTML = "&#x2716;"; // X symbol
+            deleteIcon.className = "delete-icon";
+            deleteIcon.title = "Unregister from activity";
+            
+            // Adicionar evento de clique para cancelar o registro
+            deleteIcon.addEventListener("click", async () => {
+              try {
+                const response = await fetch(
+                  `/activities/${encodeURIComponent(name)}/unregister?email=${encodeURIComponent(email)}`,
+                  {
+                    method: "POST",
+                  }
+                );
+
+                const result = await response.json();
+
+                if (response.ok) {
+                  messageDiv.textContent = result.message || "Successfully unregistered from activity";
+                  messageDiv.className = "success";
+                  // Recarregar a lista de atividades
+                  fetchActivities();
+                } else {
+                  messageDiv.textContent = result.detail || "Failed to unregister from activity";
+                  messageDiv.className = "error";
+                }
+
+                messageDiv.classList.remove("hidden");
+
+                // Ocultar a mensagem após 5 segundos
+                setTimeout(() => {
+                  messageDiv.classList.add("hidden");
+                }, 5000);
+
+              } catch (error) {
+                messageDiv.textContent = "Failed to unregister. Please try again.";
+                messageDiv.className = "error";
+                messageDiv.classList.remove("hidden");
+                console.error("Error unregistering:", error);
+              }
+            });
+            
+            li.appendChild(deleteIcon);
             participantsList.appendChild(li);
           });
           participantsList.classList.remove("hidden");
@@ -81,6 +130,8 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
+        // Atualizar a lista de atividades após registro bem-sucedido
+        fetchActivities();
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
