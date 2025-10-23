@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const activitySelect = document.getElementById("activity");
   const signupForm = document.getElementById("signup-form");
   const messageDiv = document.getElementById("message");
+  const activityTemplate = document.getElementById("activity-template");
 
   // Function to fetch activities from API
   async function fetchActivities() {
@@ -12,22 +13,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Clear loading message
       activitiesList.innerHTML = "";
+      activitySelect.innerHTML = '<option value="">-- Select an activity --</option>';
 
       // Populate activities list
       Object.entries(activities).forEach(([name, details]) => {
-        const activityCard = document.createElement("div");
-        activityCard.className = "activity-card";
+        // Clone the template card
+        const card = activityTemplate.content.cloneNode(true);
 
+        // Fill in the main data
+        card.querySelector(".activity-title").textContent = name;
+        card.querySelector(".activity-desc").textContent = details.description;
+        card.querySelector(".activity-schedule").innerHTML = `<strong>Schedule:</strong> ${details.schedule}`;
         const spotsLeft = details.max_participants - details.participants.length;
+        card.querySelector(".activity-capacity").innerHTML = `<strong>Availability:</strong> ${spotsLeft} spots left`;
 
-        activityCard.innerHTML = `
-          <h4>${name}</h4>
-          <p>${details.description}</p>
-          <p><strong>Schedule:</strong> ${details.schedule}</p>
-          <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
-        `;
+        // Fill in participants
+        const participantsList = card.querySelector(".participants-list");
+        const noParticipantsMsg = card.querySelector(".no-participants");
+        participantsList.innerHTML = "";
 
-        activitiesList.appendChild(activityCard);
+        if (details.participants.length > 0) {
+          details.participants.forEach(email => {
+            const li = document.createElement("li");
+            li.className = "participant-item";
+            li.textContent = email;
+            participantsList.appendChild(li);
+          });
+          participantsList.classList.remove("hidden");
+          noParticipantsMsg.classList.add("hidden");
+        } else {
+          participantsList.classList.add("hidden");
+          noParticipantsMsg.classList.remove("hidden");
+        }
+
+        activitiesList.appendChild(card);
 
         // Add option to select dropdown
         const option = document.createElement("option");
