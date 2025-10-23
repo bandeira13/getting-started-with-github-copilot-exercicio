@@ -15,10 +15,31 @@
     <main>
       <section id="activities-container">
         <h3>Available Activities</h3>
-        <div id="activities-list">
+        <div id="activities-list" aria-live="polite">
           <!-- Activities will be loaded here -->
           <p>Loading activities...</p>
         </div>
+
+        <!-- Template for activity cards (used by app.js) -->
+        <template id="activity-template">
+          <article class="activity-card" role="article" aria-label="activity-card">
+            <h4 class="activity-title"></h4>
+            <p class="activity-desc"></p>
+            <p class="activity-schedule"></p>
+            <p class="activity-capacity"></p>
+
+            <div class="participants" aria-labelledby="participants-heading">
+              <h5 class="participants-title" id="participants-heading">Participants</h5>
+
+              <ul class="participants-list" role="list">
+                <!-- participant items will be inserted here -->
+                <!-- Example: <li class="participant-item">jane@mergington.edu</li> -->
+              </ul>
+
+              <p class="no-participants hidden">No participants yet</p>
+            </div>
+          </article>
+        </template>
       </section>
 
       <section id="signup-container">
